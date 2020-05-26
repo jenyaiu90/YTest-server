@@ -23,22 +23,28 @@ public class TestsController
 	protected UsersRepository usersRep;
 
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
-	public Test createTest(@RequestParam("test") Test test, @RequestParam("tasks") List<Task> tasks, @RequestParam("user") User user)
+	public Test createTest(@RequestParam("test_name") String test_name, @RequestParam("subject") String subject, @RequestBody List<Task> tasks, @RequestParam("login") String login, @RequestParam("password") String password)
 	{
-		List<User> u = usersRep.getUser(user.getLogin());
-		if (!u.isEmpty() && user.getPassword().equals(u.get(0).getPassword()) && u.get(0).getIsTeacher())
+		List<User> u = usersRep.getUser(login);
+		Test test = new Test();
+		test.setName(test_name);
+		test.setSubject(subject);
+		if (!u.isEmpty() && password.equals(u.get(0).getPassword()) && u.get(0).getIsTeacher())
 		{
 			testsRep.createTest(test);
+			test = testsRep.getLast().get(0);
 			for (Task i : tasks)
 			{
+				i.setTest(test.getId());
 				tasksRep.createTask(i);
 			}
 			testsRep.createTestUser(test, u.get(0));
-			System.out.println("User " + user.getLogin() + " has created the test \"" + test.getName() + "\"");
+			System.out.println("User " + login + " has created the test \"" + test.getName() + "\"");
 			return test;
 		}
 		else
 		{
+			System.out.println("User " + login + " couldn`t create test");
 			return null;
 		}
 	}
@@ -137,6 +143,31 @@ public class TestsController
 		{
 			System.out.println("User " + login + "has tried to solve the test with id " + test_id + ", but that user wasn`t found");
 			return new ServerAnswer("No user");
+		}
+	}
+
+	@RequestMapping(value = "/get_result", method = RequestMethod.GET)
+	public List<Answer> getAnswers(@RequestParam("login") String login, @RequestParam("test_id") int test_id)
+	{
+		List<User> user = usersRep.getUser(login);
+		if (!user.isEmpty())
+		{
+			List<Test> test = testsRep.getTest(test_id);
+			if (!test.isEmpty())
+			{
+				System.out.println("A user has got results of solving the test with id " + test_id + " by " + login);
+				return testsRep.getAnswers(user.get(0), test.get(0));
+			}
+			else
+			{
+				System.out.println("A user couldn`t get results of test because test with id " + test_id + "wasn`t found");
+				return null;
+			}
+		}
+		else
+		{
+			System.out.println("A user couldn`t get results of test because user " + login + " wasn`t found");
+			return null;
 		}
 	}
 

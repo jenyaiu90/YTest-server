@@ -4,9 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.jenyaiu90.ytest.entity.*;
-import ru.jenyaiu90.ytest.mappers.ResultsMapper;
-import ru.jenyaiu90.ytest.mappers.TestsMapper;
-import ru.jenyaiu90.ytest.mappers.UsersMapper;
+import ru.jenyaiu90.ytest.mappers.*;
 
 import java.util.List;
 
@@ -20,6 +18,12 @@ public class TestsRepository
 	{
 		return jdbc.update("INSERT INTO \"TESTS\" (\"NAME\", \"SUBJECT\") VALUES (?, ?)",
 				test.getName(), test.getSubject());
+	}
+
+	public List<Test> getLast()
+	{
+		return jdbc.query("SELECT * FROM \"TESTS\" ORDER BY \"ID\" DESC LIMIT 1",
+				new TestsMapper());
 	}
 
 	public int createTestUser(Test test, User user)
@@ -50,6 +54,13 @@ public class TestsRepository
 				answer.getResult(), answer.getTask(), answer.getAnswer(), answer.getImageAnswer(), answer.getIsChecked(), answer.getPoints());
 	}
 
+	public List<Answer> getAnswers(User user, Test test)
+	{
+		return jdbc.query("SELECT * FROM \"ANSWERS\" WHERE \"RESULT\" IN (SELECT \"ID\" FROM \"RESULTS\" WHERE \"USER\" = ? AND \"TEST\" = ?)",
+				new AnswersMapper(),
+				user.getId(), test.getId());
+	}
+
 	public List<Test> getTestsFor(User user)
 	{
 		return jdbc.query("SELECT * FROM \"TESTS\" WHERE \"ID\" IN (SELECT \"TEST\" FROM \"SETS\" WHERE \"GROUP\" IN (SELECT \"GROUP\" FROM \"GROUPS_USERS\" WHERE \"USER\" = ?))",
@@ -59,7 +70,7 @@ public class TestsRepository
 
 	public List<Test> getTestsOf(User user)
 	{
-		return jdbc.query("SELECT * FROM \"TESTS\" WHERE \"ID\" IN (SELECT \"TEST\" FROM \"TESTS_USERS\" WHERE \"USER\" = ?",
+		return jdbc.query("SELECT * FROM \"TESTS\" WHERE \"ID\" IN (SELECT \"TEST\" FROM \"TESTS_USERS\" WHERE \"USER\" = ?)",
 				new TestsMapper(),
 				user.getId());
 	}

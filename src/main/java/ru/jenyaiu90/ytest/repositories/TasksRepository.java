@@ -15,6 +15,19 @@ public class TasksRepository
 	@Autowired
 	protected JdbcTemplate jdbc;
 
+	public List<Task> getTask(int id)
+	{
+		return jdbc.query("SELECT * FROM \"TASKS\" WHERE \"ID\" = ?",
+				new TasksMapper(),
+				id);
+	}
+
+	public List<Task> getLast()
+	{
+		return jdbc.query("SELECT * FROM \"TASKS\" ORDER BY \"ID\" DESC LIMIT 1",
+				new TasksMapper());
+	}
+
 	public List<Task> getTasksOfTest(Test test)
 	{
 		return jdbc.query("SELECT * FROM \"TASKS\" WHERE \"TEST\" = ?",
@@ -40,37 +53,35 @@ public class TasksRepository
 				type = "Long";
 				break;
 		}
-		if (task.getChoice() == null)
+		if (task.getChoice() == null || task.getChoice().length == 0)
 		{
 			choice = null;
 		}
 		else
 		{
-			choice = "{";
+			choice = "";
 			for (String i : task.getChoice())
 			{
-				choice += "'" + i + "', ";
+				choice += i + "/=@/";
 			}
-			choice = choice.substring(0, choice.length() - 2);
-			choice += "}";
+			choice = choice.substring(0, choice.length() - 4);
 		}
-		if (task.getAnswer() == null)
+		if (task.getAnswer() == null || task.getAnswer().length == 0)
 		{
 			answer = null;
 		}
 		else
 		{
-			answer = "{";
+			answer = "";
 			for (String i : task.getAnswer())
 			{
-				answer += "'" + i + "', ";
+				answer += i + "/=@/";
 			}
-			answer = answer.substring(0, answer.length() - 2);
-			answer += "}";
+			answer = answer.substring(0, answer.length() - 4);
 		}
 
 		return jdbc.update("INSERT INTO \"TASKS\" (\"TYPE\", \"NUM\", \"IMAGE\", \"TEXT\", \"COST\", \"CHOICE\", \"ANSWER\", \"TEST\") " +
-				"VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+						"VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
 				type, task.getNum(), task.getImage(), task.getText(), task.getCost(), choice, answer, task.getTest());
 	}
 }
