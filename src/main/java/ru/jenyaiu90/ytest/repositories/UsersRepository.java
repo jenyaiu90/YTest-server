@@ -34,6 +34,14 @@ public class UsersRepository
 				login);
 	}
 
+	public List<User> getUser(int id)
+	{
+		return jdbc.query(
+				"SELECT * FROM \"USERS\" WHERE \"ID\" = ?",
+				new UsersMapper(),
+				id);
+	}
+
 	public int updateUser(User user)
 	{
 		return jdbc.update("UPDATE \"USERS\" SET" +

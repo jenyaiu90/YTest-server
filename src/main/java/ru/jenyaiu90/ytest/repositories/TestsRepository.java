@@ -39,6 +39,12 @@ public class TestsRepository
 				id);
 	}
 
+	public int checkAnswer(Answer answer, int points)
+	{
+		return jdbc.update("UPDATE \"ANSWERS\" SET \"POINTS\" = ?, \"IS_CHECKED\" = TRUE WHERE \"ID\" = ?",
+				points, answer.getId());
+	}
+
 	public List<Result> createResult(Test test, User user)
 	{
 		jdbc.update("INSERT INTO \"RESULTS\" (\"USER\", \"TEST\") VALUES (?, ?)",

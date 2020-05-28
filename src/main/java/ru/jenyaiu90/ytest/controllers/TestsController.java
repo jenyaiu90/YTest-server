@@ -36,6 +36,7 @@ public class TestsController
 			for (Task i : tasks)
 			{
 				i.setTest(test.getId());
+				i.setNum(i.getNum() + 1);
 				tasksRep.createTask(i);
 			}
 			testsRep.createTestUser(test, u.get(0));
@@ -62,6 +63,51 @@ public class TestsController
 		{
 			System.out.println("Request for test with id " + test_id + ". Test wasn`t found");
 			return null;
+		}
+	}
+
+	@RequestMapping(value = "/check", method = RequestMethod.PUT)
+	public ServerAnswer checkAnswer(@RequestBody Answer answer, @RequestParam("points") int points, @RequestParam("login") String login, @RequestParam("password") String passord)
+	{
+		List<Task> task = tasksRep.getTask(answer.getTask());
+		if (task.isEmpty())
+		{
+			System.out.println("User " + login + " couldn`t check the answers because the task of test wasn`t found");
+			System.out.println("\tWARNING! The answer with id " + answer.getId() + " hasn`t a task");
+			return new ServerAnswer("No task");
+		}
+		List<Test> test = testsRep.getTest(task.get(0).getTest());
+		if (test.isEmpty())
+		{
+			System.out.println("User " + login + " couldn`t check the answers because the test of test wasn`t found");
+			System.out.println("\tWARNING! The task with id " + task.get(0).getId() + " hasn`t a test");
+			return new ServerAnswer("No test");
+		}
+		List<User> user = testsRep.getAuthorOfTest(test.get(0));
+		if (user.isEmpty())
+		{
+			System.out.println("User " + login + " couldn`t check the answers because the author of test wasn`t found");
+			System.out.println("\tWARNING! The test with id " + test.get(0).getId() + " hasn`t an author");
+			return new ServerAnswer("No author");
+		}
+		if (user.get(0).getLogin().equals(login))
+		{
+			if (user.get(0).getPassword().equals(passord))
+			{
+				testsRep.checkAnswer(answer, points);
+				System.out.println("One of answers was checked by " + login);
+				return new ServerAnswer("OK");
+			}
+			else
+			{
+				System.out.println("User " + login + " couldn`t check the answers because of wrong password");
+				return new ServerAnswer("Wrong password");
+			}
+		}
+		else
+		{
+			System.out.println("User " + login + " couldn`t check the answers because he isn`t an author of test");
+			return new ServerAnswer("Not author of test");
 		}
 	}
 
