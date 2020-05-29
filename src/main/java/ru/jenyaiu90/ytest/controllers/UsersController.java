@@ -16,20 +16,18 @@ public class UsersController
 	protected UsersRepository usersRep;
 
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
-	public User createUser(@RequestBody User user)
+	public ServerAnswer createUser(@RequestBody User user)
 	{
 		if (usersRep.getUser(user.getLogin()).isEmpty())
 		{
 			usersRep.createUser(user);
 			System.out.println("User " + user.getLogin() + " was created.");
-			User ret = usersRep.getUser(user.getLogin()).get(0);
-			ret.setPassword("password");
-			return ret;
+			return new ServerAnswer(ServerAnswer.OK);
 		}
 		else
 		{
 			System.out.println("Attempt to create user " + user.getLogin() + " was failed.");
-			return null;
+			return new ServerAnswer(ServerAnswer.USER_ALREADY_EXISTS);
 		}
 	}
 
@@ -76,7 +74,7 @@ public class UsersController
 		if (users.isEmpty())
 		{
 			System.out.println("Couldn`t update user " + login + " because this user wasn`t found");
-			return new ServerAnswer("Error");
+			return new ServerAnswer(ServerAnswer.NO_USER);
 		}
 		if (users.get(0).getPassword().equals(old_password))
 		{
@@ -90,12 +88,12 @@ public class UsersController
 			user.setPassword(new_password);
 			usersRep.updateUser(user);
 			System.out.println("User " + user.getLogin() + " was updated");
-			return new ServerAnswer("OK");
+			return new ServerAnswer(ServerAnswer.OK);
 		}
 		else
 		{
 			System.out.println("User " + login + " couldn`t be updated because of wrong password");
-			return new ServerAnswer("Password");
+			return new ServerAnswer(ServerAnswer.PASSWORD);
 		}
 	}
 }

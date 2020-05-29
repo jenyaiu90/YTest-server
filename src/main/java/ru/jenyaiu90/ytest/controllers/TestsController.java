@@ -23,30 +23,46 @@ public class TestsController
 	protected UsersRepository usersRep;
 
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
-	public Test createTest(@RequestParam("test_name") String test_name, @RequestParam("subject") String subject, @RequestBody List<Task> tasks, @RequestParam("login") String login, @RequestParam("password") String password)
+	public ServerAnswer createTest(@RequestParam("test_name") String test_name, @RequestParam("subject") String subject, @RequestBody List<Task> tasks, @RequestParam("login") String login, @RequestParam("password") String password)
 	{
 		List<User> u = usersRep.getUser(login);
 		Test test = new Test();
 		test.setName(test_name);
 		test.setSubject(subject);
-		if (!u.isEmpty() && password.equals(u.get(0).getPassword()) && u.get(0).getIsTeacher())
+		if (!u.isEmpty())
 		{
-			testsRep.createTest(test);
-			test = testsRep.getLast().get(0);
-			for (Task i : tasks)
+			if (password.equals(u.get(0).getPassword()))
 			{
-				i.setTest(test.getId());
-				i.setNum(i.getNum() + 1);
-				tasksRep.createTask(i);
+				if (u.get(0).getIsTeacher())
+				{
+					testsRep.createTest(test);
+					test = testsRep.getLast().get(0);
+					for (Task i : tasks)
+					{
+						i.setTest(test.getId());
+						i.setNum(i.getNum() + 1);
+						tasksRep.createTask(i);
+					}
+					testsRep.createTestUser(test, u.get(0));
+					System.out.println("User " + login + " has created the test \"" + test.getName() + "\"");
+					return new ServerAnswer(ServerAnswer.OK);
+				}
+				else
+				{
+					System.out.println("User " + login + " couldn`t create test because he isn`t a teacher");
+					return new ServerAnswer(ServerAnswer.NO_ACCESS);
+				}
 			}
-			testsRep.createTestUser(test, u.get(0));
-			System.out.println("User " + login + " has created the test \"" + test.getName() + "\"");
-			return test;
+			else
+			{
+				System.out.println("User " + login + " couldn`t create test because of wrong password");
+				return new ServerAnswer(ServerAnswer.PASSWORD);
+			}
 		}
 		else
 		{
-			System.out.println("User " + login + " couldn`t create test");
-			return null;
+			System.out.println("User " + login + " couldn`t create test because that login wasn`t found");
+			return new ServerAnswer(ServerAnswer.NO_USER);
 		}
 	}
 
@@ -74,21 +90,21 @@ public class TestsController
 		{
 			System.out.println("User " + login + " couldn`t check the answers because the task of test wasn`t found");
 			System.out.println("\tWARNING! The answer with id " + answer.getId() + " hasn`t a task");
-			return new ServerAnswer("No task");
+			return new ServerAnswer(ServerAnswer.NO_TASK);
 		}
 		List<Test> test = testsRep.getTest(task.get(0).getTest());
 		if (test.isEmpty())
 		{
 			System.out.println("User " + login + " couldn`t check the answers because the test of test wasn`t found");
 			System.out.println("\tWARNING! The task with id " + task.get(0).getId() + " hasn`t a test");
-			return new ServerAnswer("No test");
+			return new ServerAnswer(ServerAnswer.NO_TEST);
 		}
 		List<User> user = testsRep.getAuthorOfTest(test.get(0));
 		if (user.isEmpty())
 		{
 			System.out.println("User " + login + " couldn`t check the answers because the author of test wasn`t found");
 			System.out.println("\tWARNING! The test with id " + test.get(0).getId() + " hasn`t an author");
-			return new ServerAnswer("No author");
+			return new ServerAnswer(ServerAnswer.NO_AUTHOR);
 		}
 		if (user.get(0).getLogin().equals(login))
 		{
@@ -96,18 +112,18 @@ public class TestsController
 			{
 				testsRep.checkAnswer(answer, points);
 				System.out.println("One of answers was checked by " + login);
-				return new ServerAnswer("OK");
+				return new ServerAnswer(ServerAnswer.OK);
 			}
 			else
 			{
 				System.out.println("User " + login + " couldn`t check the answers because of wrong password");
-				return new ServerAnswer("Wrong password");
+				return new ServerAnswer(ServerAnswer.PASSWORD);
 			}
 		}
 		else
 		{
 			System.out.println("User " + login + " couldn`t check the answers because he isn`t an author of test");
-			return new ServerAnswer("Not author of test");
+			return new ServerAnswer(ServerAnswer.NO_ACCESS);
 		}
 	}
 
@@ -171,24 +187,24 @@ public class TestsController
 						testsRep.createAnswer(answer);
 					}
 					System.out.println("User " + login + " has solved the test with id " + test_id);
-					return new ServerAnswer("OK");
+					return new ServerAnswer(ServerAnswer.OK);
 				}
 				else
 				{
 					System.out.println("User " + login + " has tried to solve the test with id " + test_id + ", but test wasn`t found");
-					return new ServerAnswer("No test");
+					return new ServerAnswer(ServerAnswer.NO_TEST);
 				}
 			}
 			else
 			{
 				System.out.println("User " + login + " has tried to solve the test with id " + test_id + ", but his password if wrong");
-				return new ServerAnswer("Password");
+				return new ServerAnswer(ServerAnswer.PASSWORD);
 			}
 		}
 		else
 		{
 			System.out.println("User " + login + "has tried to solve the test with id " + test_id + ", but that user wasn`t found");
-			return new ServerAnswer("No user");
+			return new ServerAnswer(ServerAnswer.NO_USER);
 		}
 	}
 

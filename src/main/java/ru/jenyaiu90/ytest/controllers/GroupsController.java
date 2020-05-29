@@ -26,7 +26,7 @@ public class GroupsController
 	protected TestsRepository testsRep;
 
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
-	public Group createGroup(@RequestBody Group group, @RequestParam("login") String login, @RequestParam("password") String password)
+	public ServerAnswer createGroup(@RequestBody Group group, @RequestParam("login") String login, @RequestParam("password") String password)
 	{
 		List<User> user = usersRep.getUser(login);
 		if (!user.isEmpty())
@@ -36,22 +36,23 @@ public class GroupsController
 			{
 				groupsRep.createGroup(group);
 				System.out.println("User " + login + " has successfully created a new group with name " + group.getName());
-				return group;
+				return new ServerAnswer(ServerAnswer.OK);
 			}
 			else
 			{
 				System.out.println("User " + login + " couldn`t create a group because of wrong password");
+				return new ServerAnswer(ServerAnswer.PASSWORD);
 			}
 		}
 		else
 		{
 			System.out.println("Couldn`t create group because user " + login + " wasn`t found");
+			return new ServerAnswer(ServerAnswer.NO_USER);
 		}
-		return null;
 	}
 
 	@RequestMapping(value = "/join", method = RequestMethod.PUT)
-	public Group joinGroup(@RequestParam("group_id") int group_id, @RequestParam("login") String login, @RequestParam("password") String password)
+	public ServerAnswer joinGroup(@RequestParam("group_id") int group_id, @RequestParam("login") String login, @RequestParam("password") String password)
 	{
 		List<User> user = usersRep.getUser(login);
 		if (!user.isEmpty())
@@ -76,23 +77,25 @@ public class GroupsController
 					{
 						groupsRep.joinGroup(user.get(0), group.get(0));
 					}
-					return group.get(0);
+					return new ServerAnswer(ServerAnswer.OK);
 				}
 				else
 				{
 					System.out.println("User " + login + " couldn`t join the group with id " + group_id + " because that group wasn`t found");
+					return new ServerAnswer(ServerAnswer.NO_GROUP);
 				}
 			}
 			else
 			{
 				System.out.println("User " + login + " couldn`t join the group with id " + group_id + " because of wrong password");
+				return new ServerAnswer(ServerAnswer.PASSWORD);
 			}
 		}
 		else
 		{
 			System.out.println("User " + login + " couldn`t join the group because that user wasn`t found");
+			return new ServerAnswer(ServerAnswer.NO_USER);
 		}
-		return null;
 	}
 
 	@RequestMapping(value = "/get_groups_of", method = RequestMethod.GET)
@@ -166,36 +169,36 @@ public class GroupsController
 						{
 							groupsRep.setTest(test.get(0), group.get(0));
 							System.out.println("The user " + login + " has set the test with id " + test_id + " for the group with id " + group_id);
-							return new ServerAnswer("OK");
+							return new ServerAnswer(ServerAnswer.OK);
 						}
 						else
 						{
 							System.out.println("Couldn`t set the test with id " + test_id + " for the group because that test wasn`t found");
-							return new ServerAnswer("No test");
+							return new ServerAnswer(ServerAnswer.NO_TEST);
 						}
 					}
 					else
 					{
 						System.out.println("User " + login + " is not an admin of the group with id " + group_id + " and can`t set tests for it");
-						return new ServerAnswer("No access");
+						return new ServerAnswer(ServerAnswer.NO_ACCESS);
 					}
 				}
 				else
 				{
 					System.out.println("Couldn`t set the test for the group with id " + group_id + " because that group wasn`t found");
-					return new ServerAnswer("No group");
+					return new ServerAnswer(ServerAnswer.NO_GROUP);
 				}
 			}
 			else
 			{
 				System.out.println("User " + login + " couldn`t set the test for the group because of wrong password");
-				return new ServerAnswer("Wrong password");
+				return new ServerAnswer(ServerAnswer.PASSWORD);
 			}
 		}
 		else
 		{
 			System.out.println("User " + login + " couldn`t set the test for the group because that user wasn`t found");
-			return new ServerAnswer("No user");
+			return new ServerAnswer(ServerAnswer.NO_USER);
 		}
 	}
 
