@@ -150,7 +150,7 @@ public class TestsController
 						answer.setImageAnswer(null);
 						if (tasks.get(i).getType() == Task.TaskType.LONG)
 						{
-							answer.setIsChecked(answer.getAnswer() != null);
+							answer.setIsChecked(false);
 							answer.setPoints(0);
 						}
 						else

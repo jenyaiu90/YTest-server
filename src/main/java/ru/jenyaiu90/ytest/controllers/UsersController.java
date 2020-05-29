@@ -43,7 +43,9 @@ public class UsersController
 		else
 		{
 			System.out.println("User " + login + " couldn`t sign in");
-			return null;
+			User empty = new User();
+			empty.setId(0);
+			return empty;
 		}
 	}
 
