@@ -1,5 +1,6 @@
 package ru.jenyaiu90.ytest.entity;
 
+//Ответ пользователя на одно из заданий теста
 public class Answer
 {
 	protected int id;

@@ -33,10 +33,12 @@ public class TasksMapper implements RowMapper<Task>
 		task.setCost(rs.getInt("COST"));
 		if (task.getType() == Task.TaskType.ONE || task.getType() == Task.TaskType.MANY)
 		{
-			task.setChoice(rs.getString("CHOICE").split("/=@/"));
+			//Варианты ответа есть только в заданиях с выбором одного или нескольких вариантов
+			task.setChoice(rs.getString("CHOICE").split("/=@/")); //"/=@/" — это разделитель
 		}
 		if (task.getType() != Task.TaskType.LONG)
 		{
+			//Правильного ответа нет в заданиях с развёрнутым ответом
 			task.setAnswer(rs.getString("ANSWER").split("/=@/"));
 		}
 		task.setTest(rs.getInt("TEST"));

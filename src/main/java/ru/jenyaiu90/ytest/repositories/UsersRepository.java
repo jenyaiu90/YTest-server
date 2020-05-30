@@ -14,18 +14,21 @@ public class UsersRepository
 	@Autowired
 	protected JdbcTemplate jdbc;
 
+	//Создание пользователя
 	public int createUser(User u)
 	{
 		return jdbc.update("INSERT INTO \"USERS\" (\"LOGIN\", \"NAME\", \"SURNAME\", \"PASSWORD\", \"PHONE_NUMBER\", \"IS_TEACHER\") VALUES (?, ?, ?, ?, ?, ?)",
 				u.getLogin(), u.getName(), u.getSurname(), u.getPassword(), "+0", u.getIsTeacher());
 	}
 
+	//Проверка пользователя на существование
 	public boolean existsUser(String login)
 	{
 		return jdbc.update("SELECT EXISTS (SELECT * FROM \"USERS\" WHERE \"LOGIN\" = ?)",
 				login) != 0;
 	}
 
+	//Получить пользователя
 	public List<User> getUser(String login)
 	{
 		return jdbc.query(
@@ -34,14 +37,7 @@ public class UsersRepository
 				login);
 	}
 
-	public List<User> getUser(int id)
-	{
-		return jdbc.query(
-				"SELECT * FROM \"USERS\" WHERE \"ID\" = ?",
-				new UsersMapper(),
-				id);
-	}
-
+	//Обновить пользователя
 	public int updateUser(User user)
 	{
 		return jdbc.update("UPDATE \"USERS\" SET" +

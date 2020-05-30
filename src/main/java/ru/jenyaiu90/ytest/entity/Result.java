@@ -1,5 +1,6 @@
 package ru.jenyaiu90.ytest.entity;
 
+//Результат прохождения теста
 public class Result
 {
 	protected int id;

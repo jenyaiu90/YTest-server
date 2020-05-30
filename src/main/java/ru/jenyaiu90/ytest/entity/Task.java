@@ -1,15 +1,15 @@
 package ru.jenyaiu90.ytest.entity;
 
-import java.util.LinkedList;
-
+//Задание теста
 public class Task
 {
+	//Тип задания
 	public enum TaskType
 	{
-		ONE,
-		MANY,
-		SHORT,
-		LONG
+		ONE,	//Один из нескольких
+		MANY,	//Несколько из нескольких
+		SHORT,	//Краткий ответ
+		LONG	//Развёрнутый ответ
 	}
 
 	protected int id;
@@ -18,7 +18,7 @@ public class Task
 	protected String image;
 	protected String text;
 	protected int cost;
-	protected String[] choice;
+	protected String[] choice; //Варианты ответа
 	protected String[] answer;
 	protected int test;
 

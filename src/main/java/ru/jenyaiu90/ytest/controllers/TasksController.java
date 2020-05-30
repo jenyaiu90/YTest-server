@@ -22,11 +22,12 @@ public class TasksController
 	@Autowired
 	TestsRepository testsRep;
 
+	//Получить все задания теста
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	public List<Task> getTasksOfTest(@RequestParam("test_id") int test_id)
 	{
 		List<Test> test = testsRep.getTest(test_id);
-		if (!test.isEmpty())
+		if (!test.isEmpty()) //Проверка теста на существование
 		{
 			List<Task> task = tasksRep.getTasksOfTest(test.get(0));
 			return task;

@@ -1,5 +1,6 @@
 package ru.jenyaiu90.ytest.entity;
 
+//Задание для группы
 public class Set
 {
 	protected int id;

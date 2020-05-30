@@ -15,6 +15,7 @@ public class TasksRepository
 	@Autowired
 	protected JdbcTemplate jdbc;
 
+	//Получить задание
 	public List<Task> getTask(int id)
 	{
 		return jdbc.query("SELECT * FROM \"TASKS\" WHERE \"ID\" = ?",
@@ -22,12 +23,7 @@ public class TasksRepository
 				id);
 	}
 
-	public List<Task> getLast()
-	{
-		return jdbc.query("SELECT * FROM \"TASKS\" ORDER BY \"ID\" DESC LIMIT 1",
-				new TasksMapper());
-	}
-
+	//Получить все задания теста
 	public List<Task> getTasksOfTest(Test test)
 	{
 		return jdbc.query("SELECT * FROM \"TASKS\" WHERE \"TEST\" = ?",
@@ -35,6 +31,7 @@ public class TasksRepository
 				test.getId());
 	}
 
+	//Создать задание
 	public int createTask(Task task)
 	{
 		String type, choice, answer;
@@ -62,7 +59,7 @@ public class TasksRepository
 			choice = "";
 			for (String i : task.getChoice())
 			{
-				choice += i + "/=@/";
+				choice += i + "/=@/"; //"/=@/" — это разделитель
 			}
 			choice = choice.substring(0, choice.length() - 4);
 		}

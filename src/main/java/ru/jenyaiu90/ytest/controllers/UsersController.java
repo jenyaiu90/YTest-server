@@ -15,10 +15,11 @@ public class UsersController
 	@Autowired
 	protected UsersRepository usersRep;
 
+	//Создание пользователя
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	public ServerAnswer createUser(@RequestBody User user)
 	{
-		if (usersRep.getUser(user.getLogin()).isEmpty())
+		if (usersRep.getUser(user.getLogin()).isEmpty()) //Проверка на наличие зарегистрированного пользователя с таким же логином
 		{
 			usersRep.createUser(user);
 			System.out.println("User " + user.getLogin() + " was created.");
@@ -31,11 +32,12 @@ public class UsersController
 		}
 	}
 
+	//Вход в систему
 	@RequestMapping(value = "/auth", method = RequestMethod.GET)
 	public User signIn(@RequestParam("login") String login, @RequestParam("password") String password)
 	{
 		List<User> user = usersRep.getUser(login);
-		if (!user.isEmpty() && user.get(0).getPassword().equals(password))
+		if (!user.isEmpty() && user.get(0).getPassword().equals(password)) //Проверка логина и пароля
 		{
 			System.out.println("User " + login + " signed in");
 			return user.get(0);
@@ -49,11 +51,12 @@ public class UsersController
 		}
 	}
 
+	//Получить пользователя по логину
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	public User getUser(@RequestParam("login") String login)
 	{
 		List<User> users = usersRep.getUser(login);
-		if (users.isEmpty())
+		if (users.isEmpty()) //Проверка пользователя на существование
 		{
 			System.out.println("A user couldn`t get an information about user " + login + " because this user wasn`t found");
 			return null;
@@ -66,6 +69,7 @@ public class UsersController
 		}
 	}
 
+	//Изменить данные пользователя
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	public ServerAnswer update(@RequestParam("login") String login, @RequestParam("name") String name,
 							   @RequestParam("surname") String surname, @RequestParam("email") String email,
@@ -73,12 +77,12 @@ public class UsersController
 							   @RequestParam("old_password") String old_password, @RequestParam("new_password") String new_password)
 	{
 		List<User> users = usersRep.getUser(login);
-		if (users.isEmpty())
+		if (users.isEmpty()) //Проверка пользователя на существование
 		{
 			System.out.println("Couldn`t update user " + login + " because this user wasn`t found");
 			return new ServerAnswer(ServerAnswer.NO_USER);
 		}
-		if (users.get(0).getPassword().equals(old_password))
+		if (users.get(0).getPassword().equals(old_password)) //Проверка правильности пароля
 		{
 			User user = new User();
 			user.setLogin(login);
